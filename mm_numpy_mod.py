@@ -1,3 +1,15 @@
+'''
+ * Este archivo fue escrito como ejemplo en el curso Applied HPC,
+ * de la Universidad de Ingeniería y Tecología (UTEC)
+ * Material es de libre uso, entendiendo que debe contener este encabezado
+ * UTEC no se responsabiliza del uso particular del código
+ *
+ * Autor:       Jose Fiestas (UTEC)
+ * contacto:    jfiestas@utec.edu.pe
+ * objetivo:    Multiplicacion de matrices con joblib
+ * contenido:   código fuente en python
+'''
+
 import numpy as np
 from joblib import Parallel, delayed
 import time
@@ -51,4 +63,5 @@ df_E = pd.DataFrame(E_r)
 with pd.ExcelWriter('Resultados.xlsx') as writer:
     df_time.to_excel(writer, sheet_name='Sheet1', index=False)
     df_performance.to_excel(writer, sheet_name='Sheet2', index=False)
+
     df_E.to_excel(writer, sheet_name='Sheet3', index=False)
