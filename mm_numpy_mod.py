@@ -10,7 +10,7 @@ t = [256, 512, 1024, 2048, 4096]
 time_r = {"256": {}, "512": {}, "1024": {}, "2048": {}, "4096": {}}
 performance_r = {"256": {},"512": {}, "1024": {}, "2048": {}, "4096": {}}
 E_r = {"256": {},"512": {}, "1024": {}, "2048": {}, "4096": {}}
-
+threads = [1, 2, 4, 8, 16, 24]
 # Función para la realización del producto punto de dos matrices
 def compute_row(i):
     return np.dot(A[i, :], B)
@@ -21,19 +21,28 @@ for N in t:
   B = np.ones((N, N))
   C = np.zeros((N, N))
   # Uso de diferente cantida de hilos del procesador
-  for j in range(12):
-    start = time.time()
-    # Paralelizaje del proceso con joblib
-    C_rows = Parallel(n_jobs=j+1)(delayed(compute_row)(i) for i in range(N))
-    C = np.vstack(C_rows)
-    end = time.time()
-    # Cálculo de resultados y almacenamiento
-    elapsed = end - start
-    gflops = (2 * N**3) / 1e9 / elapsed
-    E = gflops / (j+1)
-    time_r[str(N)][str(j+1)] = elapsed
-    performance_r[str(N)][str(j+1)] = gflops
-    E_r[str(N)][str(j+1)] = E
+  for j in threads:
+    t_val = []
+    s_val = []
+    E_val = []
+    # Iteración para cálculo de valor promedio
+    for i in range(10):
+      start = time.time()
+      # Paralelizaje del proceso con joblib
+      C_rows = Parallel(n_jobs=j+1)(delayed(compute_row)(i) for i in range(N))
+      C = np.vstack(C_rows)
+      end = time.time()
+      # Cálculo de resultados
+      elapsed = end - start
+      gflops = (2 * N**3) / 1e9 / elapsed
+      E = gflops / (j+1)
+      t_val.append(elapsed)
+      s_val.append(gflops)
+      E_val.append(E)
+    # Almacenamiento de promedios por prueba
+    time_r[str(N)][str(j+1)] = np.mean(t_val)
+    performance_r[str(N)][str(j+1)] = np.mean(s_val)
+    E_r[str(N)][str(j+1)] = np.mean(E_val)
 # Conversión de diccionarios a dataframes para exportar resultados
 df_time = pd.DataFrame(time_r)
 df_performance = pd.DataFrame(performance_r)
